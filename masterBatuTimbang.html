@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Data Batu Timbang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+            }
+
+            .max-w-\[1400px\] {
+                max-width: 100% !important;
+                padding: 0 !important;
+            }
+        }
+
+        /* Excel-like style */
+        th {
+            border-color: #666 !important;
+        }
+
+        td {
+            border-color: #ccc !important;
+        }
+
+        .dragging {
+            opacity: 0.5;
+            background-color: #f3f4f6 !important;
+        }
+
+        .drag-over-top {
+            border-top: 3px solid #3b82f6 !important;
+        }
+
+        .drag-over-bottom {
+            border-bottom: 3px solid #3b82f6 !important;
+        }
+
+        .drag-handle {
+            cursor: move;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 24px;
+        }
+
+        .drag-handle:hover {
+            background-color: #f3f4f6;
+            color: #4f46e5;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 min-h-screen">
+    <div class="max-w-[1400px] mx-auto px-4 py-8">
+        <!-- Header & Nav -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Master Data Batu Timbang</h1>
+                <p class="text-gray-500 mt-1">Kelola data standar batu timbang untuk kalibrasi</p>
+            </div>
+            <div class="flex gap-4">
+                <a href="index.html"
+                    class="bg-white border border-gray-300 hover:bg-gray-50 px-6 py-2.5 rounded-xl font-semibold transition-all shadow-sm flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
+                    Kembali ke Form
+                </a>
+                <button onclick="toggleModal('modal-add')"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-semibold transition-all shadow-lg shadow-blue-200 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14" />
+                        <path d="M12 5v14" />
+                    </svg>
+                    Tambah Data Baru
+                </button>
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="bg-white rounded-xl shadow-xl border border-gray-300 overflow-hidden mb-12">
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-400 text-center text-xs">
+                    <thead>
+                        <tr class="bg-[#92d050] text-black">
+                            <th rowspan="2" class="border border-gray-400 p-2 w-10">No.</th>
+                            <th rowspan="2" class="border border-gray-400 p-2 w-48">No. ID Batu Timbang</th>
+                            <th rowspan="2" class="border border-gray-400 p-2 w-32">Tanggal Kalibrasi</th>
+                            <th rowspan="2" class="border border-gray-400 p-2 w-48">No. Sertifikat Kalibrasi</th>
+                            <th rowspan="2" class="border border-gray-400 p-2 w-24">Merek</th>
+                            <th rowspan="2" class="border border-gray-400 p-2 w-16">Kelas</th>
+                            <th colspan="3" class="border border-gray-400 p-1 bg-[#c5e0b4]">Nominal Batu Timbang</th>
+                            <th colspan="3" class="border border-gray-400 p-1 bg-[#c5e0b4]">Massa Konvensional</th>
+                            <th colspan="3" class="border border-gray-400 p-1 bg-[#c5e0b4]">Ketidakpastian</th>
+                            <th rowspan="2" class="border border-gray-400 p-2 w-20 no-print">Aksi</th>
+                        </tr>
+                        <tr class="bg-[#e2efda] text-black font-bold">
+                            <th class="border border-gray-400 p-1 w-12">mg</th>
+                            <th class="border border-gray-400 p-1 w-12">g</th>
+                            <th class="border border-gray-400 p-1 w-12">Kg</th>
+                            <th class="border border-gray-400 p-1 w-20">mg</th>
+                            <th class="border border-gray-400 p-1 w-20">g</th>
+                            <th class="border border-gray-400 p-1 w-24">Kg</th>
+                            <th class="border border-gray-400 p-1 w-20">mg</th>
+                            <th class="border border-gray-400 p-1 w-20">g</th>
+                            <th class="border border-gray-400 p-1 w-24">Kg</th>
+                        </tr>
+                    </thead>
+                    <tbody id="master-body" class="bg-white">
+                        <!-- Content injected by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Add/Edit -->
+    <div id="modal-add" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                <h3 id="modal-title" class="text-xl font-bold">Tambah Set Batu Timbang</h3>
+                <button onclick="toggleModal('modal-add')" class="text-gray-400 hover:text-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18" />
+                        <path d="m6 6 12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-1">
+                <form id="form-master" class="space-y-6">
+                    <input type="hidden" id="edit-index">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">No. ID Batu Timbang</label>
+                            <input type="text" id="id-batu"
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Tanggal Kalibrasi</label>
+                            <input type="date" id="tgl-kalibrasi"
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">No. Sertifikat</label>
+                            <input type="text" id="no-sertifikat"
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                required>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Merek</label>
+                                <input type="text" id="merek"
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Kelas</label>
+                                <select id="kelas"
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                    <option value="E2">E2</option>
+                                    <option value="F1">F1</option>
+                                    <option value="F2">F2</option>
+                                    <option value="M1">M1</option>
+                                    <option value="M2">M2</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-100 pt-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-bold text-gray-800">Daftar Bobot (Weights)</h4>
+                            <button type="button" onclick="addWeightRow()"
+                                class="text-blue-600 hover:text-blue-700 text-sm font-bold flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M5 12h14" />
+                                    <path d="M12 5v14" />
+                                </svg>
+                                Tambah Item
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto border border-gray-300 rounded-xl">
+                            <table class="w-full border-collapse text-center text-[10px]">
+                                <thead>
+                                    <tr class="bg-[#92d050] text-black text-[11px]">
+                                        <th rowspan="2" class="border border-gray-400 p-1 w-6 bg-[#92d050]"></th>
+                                        <th colspan="3" class="border border-gray-400 p-1 bg-[#c5e0b4]">Nominal Batu
+                                            Timbang</th>
+                                        <th colspan="3" class="border border-gray-400 p-1 bg-[#c5e0b4]">Massa
+                                            Konvensional</th>
+                                        <th colspan="3" class="border border-gray-400 p-1 bg-[#c5e0b4]">Ketidakpastian
+                                        </th>
+                                        <th rowspan="2" class="border border-gray-400 p-1 w-12"></th>
+                                    </tr>
+                                    <tr class="bg-[#e2efda] text-black font-bold">
+                                        <th class="border border-gray-400 p-1 w-16">mg</th>
+                                        <th class="border border-gray-400 p-1 w-16">g</th>
+                                        <th class="border border-gray-400 p-1 w-16">Kg</th>
+                                        <th class="border border-gray-400 p-1 w-20">mg</th>
+                                        <th class="border border-gray-400 p-1 w-20">g</th>
+                                        <th class="border border-gray-400 p-1 w-24">Kg</th>
+                                        <th class="border border-gray-400 p-1 w-20">mg</th>
+                                        <th class="border border-gray-300 p-1 w-20">g</th>
+                                        <th class="border border-gray-300 p-1 w-24">Kg</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="weights-body" class="divide-y divide-gray-100 bg-white">
+                                    <!-- Weight rows here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="p-6 border-t border-gray-100 flex justify-end gap-3 bg-gray-50">
+                <button onclick="toggleModal('modal-add')"
+                    class="px-6 py-2 rounded-xl font-semibold text-gray-600 hover:bg-gray-200 transition-all">Batal</button>
+                <button onclick="saveMasterData()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded-xl font-semibold transition-all">Simpan
+                    Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let masterData = JSON.parse(localStorage.getItem('masterBatuTimbang') || '[]');
+
+        // Standardized formatting with unit-aware precision
+        function formatBatu(v, type, targetUnit, nominalUnit) {
+            if (v === undefined || v === null || v === "" || isNaN(parseFloat(v.toString().replace(',', '.')))) return "";
+
+            let num = parseFloat(v.toString().replace(',', '.'));
+            // Fix floating point noise
+            num = parseFloat(num.toPrecision(12));
+
+            // Special case: Just clean noise while keeping natural decimals
+            if (type === 'clean' || type === 'nominal') {
+                return num.toLocaleString('id-ID', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 15 });
+            }
+
+            let minPrecision = 0;
+            let maxPrecision = 0;
+
+            if (type === 'mc') {
+                if (nominalUnit === 'mg') {
+                    if (targetUnit === 'mg') { minPrecision = 3; maxPrecision = 3; }
+                    else if (targetUnit === 'g') { minPrecision = 6; maxPrecision = 6; } // Fixed 6 as requested
+                    else if (targetUnit === 'kg') { minPrecision = 9; maxPrecision = 9; }
+                } else { // g or kg
+                    if (targetUnit === 'mg') { minPrecision = 2; maxPrecision = 2; }
+                    else if (targetUnit === 'g') { minPrecision = 0; maxPrecision = 10; } // Gram stays natural
+                    else if (targetUnit === 'kg') { minPrecision = 5; maxPrecision = 5; }
+                }
+            } else if (type === 'u') {
+                if (nominalUnit === 'mg') {
+                    if (targetUnit === 'mg') { minPrecision = 4; maxPrecision = 4; }
+                    else if (targetUnit === 'g') { minPrecision = 7; maxPrecision = 7; }
+                    else if (targetUnit === 'kg') { minPrecision = 10; maxPrecision = 10; }
+                } else {
+                    if (targetUnit === 'mg') { minPrecision = 3; maxPrecision = 3; }
+                    else if (targetUnit === 'g') { minPrecision = 6; maxPrecision = 6; }
+                    else if (targetUnit === 'kg') { minPrecision = 9; maxPrecision = 9; }
+                }
+            }
+
+            return num.toLocaleString('id-ID', {
+                useGrouping: false,
+                minimumFractionDigits: minPrecision,
+                maximumFractionDigits: maxPrecision
+            });
+        }
+
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.toggle('hidden');
+            if (id === 'modal-add' && modal.classList.contains('hidden')) {
+                document.getElementById('form-master').reset();
+                document.getElementById('weights-body').innerHTML = '';
+                document.getElementById('edit-index').value = '';
+                document.getElementById('modal-title').innerText = 'Tambah Set Batu Timbang';
+            }
+        }
+
+        function addWeightRow(data = null) {
+            const tbody = document.getElementById('weights-body');
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-gray-50 transition-colors border-gray-200 dr-row";
+            // tr.draggable will be managed by mousedown on handle
+
+            // Base values
+            const nomMg = data?.nomMg || (data?.unit === 'mg' ? data.nominal : "");
+            const nomG = data?.nomG || (data?.unit === 'g' || (!data?.nomMg && !data?.nomG && !data?.nomKg) ? data?.nominal : "");
+            const nomKg = data?.nomKg || (data?.unit === 'kg' ? data.nominal : "");
+
+            const mcMg = data?.mcMg || "";
+            const mcG = data?.mcG || data?.mc || "";
+            const mcKg = data?.mcKg || "";
+
+            const uMg = data?.uMg || "";
+            const uG = data?.uG || "";
+            const uKg = data?.uKg || "";
+
+            tr.innerHTML = `
+                <td class="border border-gray-300 p-2 drag-handle text-gray-400 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+                </td>
+                <!-- Nominal -->
+                <td class="border border-gray-300 p-1"><input type="text" class="w-full border-0 p-1 text-center text-[10px] nom-mg" placeholder="-" value="${nomMg}"></td>
+                <td class="border border-gray-300 p-1 bg-yellow-50/30"><input type="text" class="w-full border-0 p-1 text-center font-bold text-[10px] nom-g" placeholder="-" value="${nomG}"></td>
+                <td class="border border-gray-300 p-1"><input type="text" class="w-full border-0 p-1 text-center text-[10px] nom-kg" placeholder="-" value="${nomKg}"></td>
+                
+                <!-- MC -->
+                <td class="border border-gray-300 p-1"><input type="text" class="w-full border-0 p-1 text-center text-[10px] mc-mg" placeholder="-" value="${mcMg}"></td>
+                <td class="border border-gray-300 p-1 bg-amber-50/50"><input type="text" class="w-full border-0 p-1 text-center font-bold text-[10px] mc-g" placeholder="-" value="${mcG}"></td>
+                <td class="border border-gray-300 p-1"><input type="text" class="w-full border-0 p-1 text-center text-[10px] mc-kg" placeholder="-" value="${mcKg}"></td>
+                
+                <!-- U -->
+                <td class="border border-gray-300 p-1"><input type="text" class="w-full border-0 p-1 text-center text-[10px] u-mg" placeholder="-" value="${uMg}"></td>
+                <td class="border border-gray-300 p-1 bg-blue-50/50"><input type="text" class="w-full border-0 p-1 text-center font-bold text-[10px] u-g" placeholder="-" value="${uG}"></td>
+                <td class="border border-gray-300 p-1"><input type="text" class="w-full border-0 p-1 text-center text-[10px] u-kg" placeholder="-" value="${uKg}"></td>
+
+                <td class="border border-gray-300 p-1 text-center">
+                    <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-red-400 hover:text-red-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    </button>
+                </td>
+            `;
+
+            // Sync logic removed as per user request (Manual Entry for all columns)
+            // tr.querySelectorAll('input').forEach(input => { ... });
+
+            // --- Drag and Drop Events ---
+            tr.addEventListener('mousedown', (e) => {
+                // Set draggable only if clicking the handle
+                if (e.target.closest('.drag-handle')) {
+                    tr.draggable = true;
+                } else {
+                    tr.draggable = false;
+                }
+            });
+
+            tr.addEventListener('dragstart', (e) => {
+                if (!tr.draggable) {
+                    e.preventDefault();
+                    return;
+                }
+                tr.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            });
+
+            tr.addEventListener('dragend', () => {
+                tr.classList.remove('dragging');
+                const allRows = tbody.querySelectorAll('.dr-row');
+                allRows.forEach(r => r.classList.remove('drag-over'));
+            });
+
+            tr.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const draggingRow = tbody.querySelector('.dragging');
+                if (draggingRow === tr) return;
+
+                const bounding = tr.getBoundingClientRect();
+                const offset = e.clientY - bounding.top;
+
+                if (offset > bounding.height / 2) {
+                    tr.classList.add('drag-over-bottom');
+                    tr.classList.remove('drag-over-top');
+                } else {
+                    tr.classList.add('drag-over-top');
+                    tr.classList.remove('drag-over-bottom');
+                }
+            });
+
+            tr.addEventListener('dragleave', () => {
+                tr.classList.remove('drag-over-top', 'drag-over-bottom');
+            });
+
+            tr.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const draggingRow = tbody.querySelector('.dragging');
+                if (draggingRow === tr) return;
+
+                const bounding = tr.getBoundingClientRect();
+                const offset = e.clientY - bounding.top;
+
+                if (offset > bounding.height / 2) {
+                    tr.after(draggingRow);
+                } else {
+                    tr.before(draggingRow);
+                }
+                tr.classList.remove('drag-over-top', 'drag-over-bottom');
+            });
+
+            tbody.appendChild(tr);
+        }
+
+        function saveMasterData() {
+            const editIndex = document.getElementById('edit-index').value;
+            const item = {
+                id: document.getElementById('id-batu').value,
+                tanggal: document.getElementById('tgl-kalibrasi').value,
+                sertifikat: document.getElementById('no-sertifikat').value,
+                merek: document.getElementById('merek').value,
+                kelas: document.getElementById('kelas').value,
+                weights: []
+            };
+
+            if (!item.id || !item.tanggal || !item.sertifikat) {
+                alert('Mohon isi field wajib (ID, Tanggal, Sertifikat)');
+                return;
+            }
+
+            const rows = document.querySelectorAll('#weights-body tr');
+            rows.forEach(row => {
+                const nomMg = row.querySelector('.nom-mg').value;
+                const nomG = row.querySelector('.nom-g').value;
+                const nomKg = row.querySelector('.nom-kg').value;
+
+                const mcMg = row.querySelector('.mc-mg').value;
+                const mcG = row.querySelector('.mc-g').value;
+                const mcKg = row.querySelector('.mc-kg').value;
+
+                const uMg = row.querySelector('.u-mg').value;
+                const uG = row.querySelector('.u-g').value;
+                const uKg = row.querySelector('.u-kg').value;
+
+                // Helper to parse numeric safely (ignoring dash or empty)
+                const parseLoc = (v) => {
+                    if (!v || v === "-" || v === "null") return null;
+                    let n = parseFloat(v.toString().replace(",", "."));
+                    return isNaN(n) ? null : n;
+                };
+
+                // Determine primary nominal for lookup/display
+                let nominal = 0;
+                let unit = "g";
+                let nG = parseLoc(nomG);
+                let nMg = parseLoc(nomMg);
+                let nKg = parseLoc(nomKg);
+
+                if (nG !== null) { nominal = nG; unit = "g"; }
+                else if (nMg !== null) { nominal = nMg; unit = "mg"; }
+                else if (nKg !== null) { nominal = nKg; unit = "kg"; }
+
+                // Determine primary 'u' for calculation fallback
+                let uBase = 0;
+                let uValG = parseLoc(uG);
+                let uValMg = parseLoc(uMg);
+                let uValKg = parseLoc(uKg);
+                if (uValG !== null) uBase = uValG;
+                else if (uValMg !== null) uBase = uValMg / 1000;
+                else if (uValKg !== null) uBase = uValKg * 1000;
+
+                // Determine primary 'mc' for calculation fallback (index.html lookup)
+                let mcBase = 0;
+                let mcValG = parseLoc(mcG);
+                let mcValMg = parseLoc(mcMg);
+                let mcValKg = parseLoc(mcKg);
+                if (mcValG !== null) mcBase = mcValG;
+                else if (mcValMg !== null) mcBase = mcValMg / 1000;
+                else if (mcValKg !== null) mcBase = mcValKg * 1000;
+
+                item.weights.push({
+                    nomMg, nomG, nomKg,
+                    mcMg, mcG, mcKg,
+                    uMg, uG, uKg,
+                    nominal, unit, // Reference values
+                    mc: mcBase.toString(), // Base gram value for index.html
+                    u: uBase.toString()
+                });
+            });
+
+            if (editIndex === "") {
+                masterData.push(item);
+            } else {
+                masterData[editIndex] = item;
+            }
+
+            localStorage.setItem('masterBatuTimbang', JSON.stringify(masterData));
+            renderTable();
+            toggleModal('modal-add');
+        }
+
+
+        function renderTable() {
+            const tbody = document.getElementById('master-body');
+            let html = '';
+
+            masterData.forEach((set, setIdx) => {
+                const rowCount = set.weights.length || 1;
+
+                if (set.weights.length === 0) {
+                    html += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="border border-gray-300 p-2">${setIdx + 1}</td>
+                        <td class="border border-gray-300 p-2 font-bold">${set.id}</td>
+                        <td class="border border-gray-300 p-2">${formatDate(set.tanggal)}</td>
+                        <td class="border border-gray-300 p-2">${set.sertifikat}</td>
+                        <td class="border border-gray-300 p-2">${set.merek || '-'}</td>
+                        <td class="border border-gray-300 p-2">${set.kelas}</td>
+                        <td colspan="9" class="border border-gray-300 p-2 text-gray-400 italic">Tidak ada item</td>
+                        <td class="border border-gray-300 p-2 no-print">
+                            <div class="flex justify-center gap-1">
+                                <button onclick="editItem(${setIdx})" class="text-blue-600 hover:bg-blue-50 p-1 rounded">Edit</button>
+                                <button onclick="deleteItem(${setIdx})" class="text-red-600 hover:bg-red-50 p-1 rounded">Hapus</button>
+                            </div>
+                        </td>
+                    </tr>`;
+                    return;
+                }
+
+                set.weights.forEach((w, wIdx) => {
+                    const isFirst = wIdx === 0;
+
+                    // Support for both new independent fields and old structure
+                    const getDisp = (val, targetUnit, type) => {
+                        if (val !== undefined && val !== "" && val !== null) {
+                            // Prioritize manually entered value as-is (including dash "-")
+                            return val;
+                        }
+                        // Fallback logic for old data sets
+                        if (w.unit === targetUnit) {
+                            let v = (type === 'nominal') ? w.nominal : (type === 'mc' ? w.mc : w.u);
+                            if (v === undefined || v === "" || v === "-") return "-";
+                            // For fallback, use specific formatting rules
+                            return formatBatu(v, type, targetUnit, w.unit) + (type === 'nominal' && w.mark ? '*' : '');
+                        }
+                        return "-";
+                    };
+
+                    const nomMgDisp = getDisp(w.nomMg, 'mg', 'nominal');
+                    const nomGDisp = getDisp(w.nomG, 'g', 'nominal');
+                    const nomKgDisp = getDisp(w.nomKg, 'kg', 'nominal');
+
+                    const mcMgDisp = getDisp(w.mcMg, 'mg', 'mc');
+                    const mcGDisp = getDisp(w.mcG, 'g', 'mc');
+                    const mcKgDisp = getDisp(w.mcKg, 'kg', 'mc');
+
+                    const uMgDisp = getDisp(w.uMg, 'mg', 'u');
+                    const uGDisp = getDisp(w.uG, 'g', 'u');
+                    const uKgDisp = getDisp(w.uKg, 'kg', 'u');
+
+                    html += `
+                        <tr class="hover:bg-gray-50 border-gray-300">
+                            ${isFirst ? `
+                            <td rowspan="${rowCount}" class="border border-gray-300 p-2 align-top">${setIdx + 1}</td>
+                            <td rowspan="${rowCount}" class="border border-gray-300 p-2 align-top font-bold text-gray-800">${set.id}</td>
+                            <td rowspan="${rowCount}" class="border border-gray-300 p-2 align-top">${formatDate(set.tanggal)}</td>
+                            <td rowspan="${rowCount}" class="border border-gray-300 p-2 align-top">${set.sertifikat}</td>
+                            <td rowspan="${rowCount}" class="border border-gray-300 p-2 align-top">${set.merek || '-'}</td>
+                            <td rowspan="${rowCount}" class="border border-gray-300 p-2 align-top font-bold text-blue-700">${set.kelas}</td>
+                            ` : ''}
+                            
+                            <!-- Nominal -->
+                            <td class="border border-gray-300 p-1 font-bold">${nomMgDisp}</td>
+                            <td class="border border-gray-300 p-1 font-bold">${nomGDisp}</td>
+                            <td class="border border-gray-300 p-1 font-bold">${nomKgDisp}</td>
+                            
+                            <!-- MC -->
+                            <td class="border border-gray-300 p-1">${mcMgDisp}</td>
+                            <td class="border border-gray-300 p-1">${mcGDisp}</td>
+                            <td class="border border-gray-300 p-1">${mcKgDisp}</td>
+                            
+                            <!-- U -->
+                            <td class="border border-gray-300 p-1 font-bold text-gray-700">${uMgDisp}</td>
+                            <td class="border border-gray-300 p-1">${uGDisp}</td>
+                            <td class="border border-gray-300 p-1">${uKgDisp}</td>
+
+                            ${isFirst ? `
+                            <td rowspan="${rowCount}" class="border border-gray-300 p-2 align-middle no-print">
+                                <div class="flex flex-col gap-2">
+                                    <button onclick="editItem(${setIdx})" class="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white px-2 py-1 rounded text-[10px] font-bold transition-all border border-blue-200">EDIT</button>
+                                    <button onclick="deleteItem(${setIdx})" class="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white px-2 py-1 rounded text-[10px] font-bold transition-all border border-red-200">HAPUS</button>
+                                </div>
+                            </td>
+                            ` : ''}
+                        </tr>
+                    `;
+                });
+            });
+            tbody.innerHTML = html || '<tr><td colspan="16" class="p-8 text-center text-gray-400">Belum ada data Master</td></tr>';
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return "-";
+            const d = new Date(dateStr);
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            return `${d.getDate().toString().padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+        }
+
+        function editItem(index) {
+            const item = masterData[index];
+            document.getElementById('edit-index').value = index;
+            document.getElementById('id-batu').value = item.id;
+            document.getElementById('tgl-kalibrasi').value = item.tanggal;
+            document.getElementById('no-sertifikat').value = item.sertifikat;
+            document.getElementById('merek').value = item.merek;
+            document.getElementById('kelas').value = item.kelas;
+            document.getElementById('modal-title').innerText = 'Edit Set Batu Timbang';
+
+            const weightsBody = document.getElementById('weights-body');
+            weightsBody.innerHTML = '';
+            item.weights.forEach(w => addWeightRow(w));
+
+            toggleModal('modal-add');
+        }
+
+        // Initial Data for Bulk Import (QA Master Data)
+        const QA_MASTER_DATA = [
+            {
+                id: "QA/U/BTN/2013/001", tanggal: "2024-07-03", sertifikat: "1631/AT/LK-AS/VII/24", merek: "ACIS", kelas: "F1", weights: [
+                    { nomMg: "20", nomG: "-", nomKg: "-", mcMg: "20,001", mcG: "0,020001", mcKg: "0,000020001", uMg: "0,0050", uG: "0,000005", uKg: "-", nominal: 20, unit: "mg", mc: "0.020001", u: "0.000005" },
+                    { nomMg: "20 *", nomG: "-", nomKg: "-", mcMg: "20,001", mcG: "0,020001", mcKg: "0,000020001", uMg: "0,0050", uG: "0,000005", uKg: "-", nominal: 20, unit: "mg", mc: "0.020001", u: "0.000005" },
+                    { nomMg: "100", nomG: "-", nomKg: "-", mcMg: "100,001", mcG: "0,100001", mcKg: "0,000100001", uMg: "0,0090", uG: "0,000009", uKg: "-", nominal: 100, unit: "mg", mc: "0.100001", u: "0.000009" },
+                    { nomMg: "200", nomG: "-", nomKg: "-", mcMg: "200,011", mcG: "0,200011", mcKg: "0,000200011", uMg: "0,010", uG: "0,00001", uKg: "-", nominal: 200, unit: "mg", mc: "0.200011", u: "0.00001" },
+                    { nomMg: "200 *", nomG: "-", nomKg: "-", mcMg: "199,993", mcG: "0,199993", mcKg: "0,000199993", uMg: "0,010", uG: "0,00001", uKg: "-", nominal: 200, unit: "mg", mc: "0.199993", u: "0.00001" },
+                    { nomMg: "500", nomG: "-", nomKg: "-", mcMg: "500,026", mcG: "0,500026", mcKg: "0,000500026", uMg: "0,014", uG: "0,000014", uKg: "-", nominal: 500, unit: "mg", mc: "0.500026", u: "0.000014" },
+                    { nomMg: "-", nomG: "1", nomKg: "-", mcMg: "1000,01", mcG: "1,00001", mcKg: "0,00100", uMg: "-", uG: "0,000019", uKg: "-", nominal: 1, unit: "g", mc: "1.00001", u: "0.000019" },
+                    { nomMg: "-", nomG: "2", nomKg: "-", mcMg: "1999,99", mcG: "1,99999", mcKg: "0,00200", uMg: "-", uG: "0,000023", uKg: "-", nominal: 2, unit: "g", mc: "1.99999", u: "0.000023" },
+                    { nomMg: "-", nomG: "2 *", nomKg: "-", mcMg: "2000,01", mcG: "2,00001", mcKg: "0,00200", uMg: "-", uG: "0,000023", uKg: "-", nominal: 2, unit: "g", mc: "2.00001", u: "0.000023" },
+                    { nomMg: "-", nomG: "5", nomKg: "-", mcMg: "5000,05", mcG: "5,00005", mcKg: "0,00500", uMg: "-", uG: "0,000029", uKg: "-", nominal: 5, unit: "g", mc: "5.00005", u: "0.000029" },
+                    { nomMg: "-", nomG: "10", nomKg: "-", mcMg: "10000,11", mcG: "10,00011", mcKg: "0,01000", uMg: "-", uG: "0,000036", uKg: "-", nominal: 10, unit: "g", mc: "10.00011", u: "0.000036" },
+                    { nomMg: "-", nomG: "20", nomKg: "-", mcMg: "19999,96", mcG: "19,99996", mcKg: "0,02000", uMg: "-", uG: "0,000046", uKg: "-", nominal: 20, unit: "g", mc: "19.99996", u: "0.000046" },
+                    { nomMg: "-", nomG: "20 *", nomKg: "-", mcMg: "19999,99", mcG: "19,99999", mcKg: "0,02000", uMg: "-", uG: "0,000046", uKg: "-", nominal: 20, unit: "g", mc: "19.99999", u: "0.000046" },
+                    { nomMg: "-", nomG: "50", nomKg: "-", mcMg: "50000,07", mcG: "50,00007", mcKg: "0,05000", uMg: "-", uG: "0,000056", uKg: "-", nominal: 50, unit: "g", mc: "50.00007", u: "0.000056" },
+                    { nomMg: "-", nomG: "100", nomKg: "-", mcMg: "99999,94", mcG: "99,99994", mcKg: "0,10000", uMg: "-", uG: "0,000092", uKg: "-", nominal: 100, unit: "g", mc: "99.99994", u: "0.000092" },
+                    { nomMg: "-", nomG: "200", nomKg: "-", mcMg: "199999,89", mcG: "199,99989", mcKg: "0,20000", uMg: "-", uG: "0,00018", uKg: "-", nominal: 200, unit: "g", mc: "199.99989", u: "0.00018" },
+                    { nomMg: "-", nomG: "200 *", nomKg: "-", mcMg: "200000,46", mcG: "200,00046", mcKg: "0,20000", uMg: "-", uG: "0,00018", uKg: "-", nominal: 200, unit: "g", mc: "200.00046", u: "0.00018" },
+                    { nomMg: "-", nomG: "500", nomKg: "-", mcMg: "500000,70", mcG: "500,0007", mcKg: "0,50000", uMg: "-", uG: "0,00048", uKg: "-", nominal: 500, unit: "g", mc: "500.0007", u: "0.00048" }
+                ]
+            },
+            {
+                id: "QA/U/BTN/2013/002", tanggal: "2024-07-05", sertifikat: "1673/AT/LK-AS/VII/24", merek: "Mega Scale", kelas: "M1", weights: [
+                    { nomMg: "-", nomG: "-", nomKg: "1", mcMg: "1000016,80", mcG: "1000,0168", mcKg: "1,0000168", uMg: "-", uG: "0,0081", uKg: "0,0000081", nominal: 1, unit: "kg", mc: "1000.0168", u: "0.0081" },
+                    { nomMg: "-", nomG: "-", nomKg: "2", mcMg: "2000013,00", mcG: "2000,0130", mcKg: "2,000013", uMg: "-", uG: "0,016", uKg: "0,000016", nominal: 2, unit: "kg", mc: "2000.013", u: "0.016" },
+                    { nomMg: "-", nomG: "-", nomKg: "2 *", mcMg: "2000033,00", mcG: "2000,0330", mcKg: "2,000033", uMg: "-", uG: "0,016", uKg: "0,000016", nominal: 2, unit: "kg", mc: "2000.033", u: "0.016" },
+                    { nomMg: "-", nomG: "-", nomKg: "5", mcMg: "4999973,00", mcG: "4999,973", mcKg: "4,999973", uMg: "-", uG: "0,042", uKg: "0,000042", nominal: 5, unit: "kg", mc: "4999.973", u: "0.042" },
+                    { nomMg: "-", nomG: "-", nomKg: "10", mcMg: "10000077,00", mcG: "10000,077", mcKg: "10,000077", uMg: "-", uG: "0,081", uKg: "0,000081", nominal: 10, unit: "kg", mc: "10000.077", u: "0.081" }
+                ]
+            },
+            {
+                id: "QA/U/BTN/2013/003", tanggal: "2024-07-05", sertifikat: "1674/AT/LK-AS/VII/24", merek: "Mega Scale", kelas: "M1", weights: [
+                    { nomMg: "-", nomG: "-", nomKg: "1", mcMg: "1000012,00", mcG: "1000,012", mcKg: "1,000012", uMg: "-", uG: "0,0083", uKg: "0,0000083", nominal: 1, unit: "kg", mc: "1000.012", u: "0.0083" },
+                    { nomMg: "-", nomG: "-", nomKg: "2", mcMg: "2000045,60", mcG: "2000,0456", mcKg: "2,0000456", uMg: "-", uG: "0,017", uKg: "0,000017", nominal: 2, unit: "kg", mc: "2000.0456", u: "0.017" },
+                    { nomMg: "-", nomG: "-", nomKg: "2 *", mcMg: "2000056,10", mcG: "2000,0561", mcKg: "2,0000561", uMg: "-", uG: "0,017", uKg: "0,000017", nominal: 2, unit: "kg", mc: "2000.0561", u: "0.017" },
+                    { nomMg: "-", nomG: "-", nomKg: "5", mcMg: "4999948,00", mcG: "4999,948", mcKg: "4,999948", uMg: "-", uG: "0,044", uKg: "0,000044", nominal: 5, unit: "kg", mc: "4999.948", u: "0.044" },
+                    { nomMg: "-", nomG: "-", nomKg: "10", mcMg: "10000037,00", mcG: "10000,037", mcKg: "10,000037", uMg: "-", uG: "0,083", uKg: "0,000083", nominal: 10, unit: "kg", mc: "10000.037", u: "0.083" }
+                ]
+            },
+            {
+                id: "QA/U/BTN/2013/004", tanggal: "2024-01-13", sertifikat: "213/AT/LK-AS/I/24", merek: "Acis", kelas: "F1", weights: [
+                    { nomMg: "-", nomG: "-", nomKg: "1", mcMg: "999998,00", mcG: "999,998", mcKg: "0,999998", uMg: "-", uG: "0,00092", uKg: "9.2E-07", nominal: 1, unit: "kg", mc: "999.998", u: "0.00092" }
+                ]
+            },
+            {
+                id: "QA/U/BTN/2013/005", tanggal: "2024-01-12", sertifikat: "185/AT/LK-AS/I/24", merek: "Mega Scale", kelas: "M1", weights: [
+                    { nomMg: "-", nomG: "-", nomKg: "20", mcMg: "20000100,00", mcG: "20000,10", mcKg: "20,00010", uMg: "-", uG: "0,16", uKg: "0,00016", nominal: 20, unit: "kg", mc: "20000.1", u: "0.16" }
+                ]
+            },
+            {
+                id: "QA/U/BTN/2013/006", tanggal: "2024-01-12", sertifikat: "186/AT/LK-AS/I/24", merek: "Mega Scale", kelas: "M1", weights: [
+                    { nomMg: "-", nomG: "-", nomKg: "20", mcMg: "20000050,00", mcG: "20000,05", mcKg: "20,00005", uMg: "-", uG: "0,16", uKg: "0,00016", nominal: 20, unit: "kg", mc: "20000.05", u: "0.16" }
+                ]
+            },
+            {
+                id: "QA/U/BTN/2013/007", tanggal: "2024-01-12", sertifikat: "187/AT/LK-AS/I/24", merek: "Mega Scale", kelas: "M1", weights: [
+                    { nomMg: "-", nomG: "-", nomKg: "20", mcMg: "20000060,00", mcG: "20000,06", mcKg: "20,00006", uMg: "-", uG: "0,16", uKg: "0,00016", nominal: 20, unit: "kg", mc: "20000.06", u: "0.16" }
+                ]
+            },
+            {
+                id: "QA/U/BTN/2013/008", tanggal: "2024-01-12", sertifikat: "188/AT/LK-AS/I/24", merek: "Mega Scale", kelas: "M1", weights: [
+                    { nomMg: "-", nomG: "-", nomKg: "20", mcMg: "19999980,00", mcG: "19999,98", mcKg: "19,99998", uMg: "-", uG: "0,16", uKg: "0,00016", nominal: 20, unit: "kg", mc: "19999.98", u: "0.16" }
+                ]
+            },
+            {
+                id: "QA/U/BTN/2013/009", tanggal: "2024-01-12", sertifikat: "189/AT/LK-AS/I/24", merek: "Mega Scale", kelas: "M1", weights: [
+                    { nomMg: "-", nomG: "-", nomKg: "20", mcMg: "20000030,00", mcG: "20000,03", mcKg: "20,00003", uMg: "-", uG: "0,16", uKg: "0,00016", nominal: 20, unit: "kg", mc: "20000.03", u: "0.16" }
+                ]
+            },
+            {
+                id: "QA/U/BTN/2013/010", tanggal: "2024-07-05", sertifikat: "1672/AT/LK-AS/VII/24", merek: "Mega Scale", kelas: "M1", weights: [
+                    { nomMg: "-", nomG: "-", nomKg: "20", mcMg: "20000000,00", mcG: "20000,00", mcKg: "20,00000", uMg: "-", uG: "0,16", uKg: "0,00016", nominal: 20, unit: "kg", mc: "20000", u: "0.16" }
+                ]
+            },
+            {
+                id: "QA/U/BTN/2015/001", tanggal: "2024-01-14", sertifikat: "212/AT/LK-AS/I/24", merek: "Fuyue Weight", kelas: "E2", weights: [
+                    { nomMg: "1", nomG: "-", nomKg: "-", mcMg: "1,003", mcG: "0,001003", mcKg: "0,000001003", uMg: "0,0017", uG: "0,0000017", uKg: "-", nominal: 1, unit: "mg", mc: "0.001003", u: "0.0017" },
+                    { nomMg: "2", nomG: "-", nomKg: "-", mcMg: "2,002", mcG: "0,002002", mcKg: "0,000002002", uMg: "0,0016", uG: "0,0000016", uKg: "-", nominal: 2, unit: "mg", mc: "0.002002", u: "0.0016" },
+                    { nomMg: "2 *", nomG: "-", nomKg: "-", mcMg: "2,000", mcG: "0,002000", mcKg: "0,000002000", uMg: "0,0016", uG: "0,0000016", uKg: "-", nominal: 2, unit: "mg", mc: "0.002", u: "0.0016" },
+                    { nomMg: "5", nomG: "-", nomKg: "-", mcMg: "5,000", mcG: "0,005000", mcKg: "0,000005000", uMg: "0,0017", uG: "0,0000017", uKg: "-", nominal: 5, unit: "mg", mc: "0.005", u: "0.0017" },
+                    { nomMg: "10", nomG: "-", nomKg: "-", mcMg: "10,005", mcG: "0,010005", mcKg: "0,000010005", uMg: "0,0018", uG: "0,0000018", uKg: "-", nominal: 10, unit: "mg", mc: "0.010005", u: "0.0018" },
+                    { nomMg: "20", nomG: "-", nomKg: "-", mcMg: "20,006", mcG: "0,020006", mcKg: "0,000020006", uMg: "0,0020", uG: "0,000002", uKg: "-", nominal: 20, unit: "mg", mc: "0.020006", u: "0.002" },
+                    { nomMg: "20 *", nomG: "-", nomKg: "-", mcMg: "20,006", mcG: "0,020006", mcKg: "0,000020006", uMg: "0,0021", uG: "0,0000021", uKg: "-", nominal: 20, unit: "mg", mc: "0.020006", u: "0.0021" },
+                    { nomMg: "50", nomG: "-", nomKg: "-", mcMg: "50,007", mcG: "0,050007", mcKg: "0,000050007", uMg: "0,0024", uG: "0,0000024", uKg: "-", nominal: 50, unit: "mg", mc: "0.050007", u: "0.0024" },
+                    { nomMg: "100", nomG: "-", nomKg: "-", mcMg: "100,007", mcG: "0,100007", mcKg: "0,000100007", uMg: "0,0032", uG: "0,0000032", uKg: "-", nominal: 100, unit: "mg", mc: "0.100007", u: "0.0032" },
+                    { nomMg: "200", nomG: "-", nomKg: "-", mcMg: "200,004", mcG: "0,200004", mcKg: "0,000200004", uMg: "0,0037", uG: "0,0000037", uKg: "-", nominal: 200, unit: "mg", mc: "0.200004", u: "0.0037" },
+                    { nomMg: "200 *", nomG: "-", nomKg: "-", mcMg: "200,005", mcG: "0,200005", mcKg: "0,000200005", uMg: "0,0036", uG: "0,0000036", uKg: "-", nominal: 200, unit: "mg", mc: "0.200005", u: "0.0036" },
+                    { nomMg: "500", nomG: "-", nomKg: "-", mcMg: "500,011", mcG: "0,500011", mcKg: "0,000500011", uMg: "0,0051", uG: "0,0000051", uKg: "-", nominal: 500, unit: "mg", mc: "0.500011", u: "0.0051" },
+                    { nomMg: "-", nomG: "1", nomKg: "-", mcMg: "1000,006", mcG: "1,000006", mcKg: "0,001000006", uMg: "-", uG: "0,0000068", uKg: "-", nominal: 1, unit: "g", mc: "1.000006", u: "0.0000068" },
+                    { nomMg: "-", nomG: "2", nomKg: "-", mcMg: "2000,012", mcG: "2,000012", mcKg: "0,002000012", uMg: "-", uG: "0,0000083", uKg: "-", nominal: 2, unit: "g", mc: "2.000012", u: "0.0000083" },
+                    { nomMg: "-", nomG: "2 *", nomKg: "-", mcMg: "2000,010", mcG: "2,00001", mcKg: "0,00200001", uMg: "-", uG: "0,0000071", uKg: "-", nominal: 2, unit: "g", mc: "2.00001", u: "0.0000071" },
+                    { nomMg: "-", nomG: "5", nomKg: "-", mcMg: "5000,024", mcG: "5,000024", mcKg: "0,005000024", uMg: "-", uG: "0,000009", uKg: "-", nominal: 5, unit: "g", mc: "5.000024", u: "0.000009" },
+                    { nomMg: "-", nomG: "10", nomKg: "-", mcMg: "10000,040", mcG: "10,00004", mcKg: "0,01000004", uMg: "-", uG: "0,000014", uKg: "-", nominal: 10, unit: "g", mc: "10.00004", u: "0.000014" },
+                    { nomMg: "-", nomG: "20", nomKg: "-", mcMg: "20000,050", mcG: "20,00005", mcKg: "0,02000005", uMg: "-", uG: "0,000017", uKg: "-", nominal: 20, unit: "g", mc: "20.00005", u: "0.000017" },
+                    { nomMg: "-", nomG: "20 *", nomKg: "-", mcMg: "20000,050", mcG: "20,00005", mcKg: "0,02000005", uMg: "-", uG: "0,000017", uKg: "-", nominal: 20, unit: "g", mc: "20.00005", u: "0.000017" },
+                    { nomMg: "-", nomG: "50", nomKg: "-", mcMg: "50000,030", mcG: "50,00003", mcKg: "0,05000003", uMg: "-", uG: "0,000021", uKg: "-", nominal: 50, unit: "g", mc: "50.00003", u: "0.000021" },
+                    { nomMg: "-", nomG: "100", nomKg: "-", mcMg: "100000,020", mcG: "100,00002", mcKg: "0,10000002", uMg: "-", uG: "0,000036", uKg: "-", nominal: 100, unit: "g", mc: "100.00002", u: "0.000036" },
+                    { nomMg: "-", nomG: "200", nomKg: "-", mcMg: "200000,100", mcG: "200,0001", mcKg: "0,2000001", uMg: "-", uG: "0,000058", uKg: "-", nominal: 200, unit: "g", mc: "200.0001", u: "0.000058" },
+                    { nomMg: "-", nomG: "200 *", nomKg: "-", mcMg: "200000,110", mcG: "200,00011", mcKg: "0,20000011", uMg: "-", uG: "0,000059", uKg: "-", nominal: 200, unit: "g", mc: "200.00011", u: "0.000059" }
+                ]
+            },
+            {
+                id: "QA/U/BTN/2015/002", tanggal: "2024-07-05", sertifikat: "1671/AT/LK-AS/VII/24", merek: "Fuyue Weight", kelas: "M1", weights: [
+                    { nomMg: "-", nomG: "-", nomKg: "20", mcMg: "20000000,00", mcG: "20000,00", mcKg: "20,00000", uMg: "-", uG: "0,16", uKg: "0,00016", nominal: 20, unit: "kg", mc: "20000", u: "0.16" }
+                ]
+            },
+            {
+                id: "QA/U/BTN/2015/003", tanggal: "2024-01-13", sertifikat: "214/AT/LK-AS/I/24", merek: "Fuyue Weight", kelas: "F2", weights: [
+                    { nomMg: "-", nomG: "-", nomKg: "2", mcMg: "2000023,00", mcG: "2000,023", mcKg: "2,000023", uMg: "-", uG: "0,0049", uKg: "0,0000049", nominal: 2, unit: "kg", mc: "2000.023", u: "0.0049" }
+                ]
+            },
+            {
+                id: "QA/U/BTN/2015/004", tanggal: "2024-01-13", sertifikat: "215/AT/LK-AS/I/24", merek: "Fuyue Weight", kelas: "F2", weights: [
+                    { nomMg: "-", nomG: "-", nomKg: "5", mcMg: "5000006,00", mcG: "5000,006", mcKg: "5,000006", uMg: "-", uG: "0,013", uKg: "0,000013", nominal: 5, unit: "kg", mc: "5000.006", u: "0.013" }
+                ]
+            },
+            {
+                id: "QA/U/BTN/2015/005", tanggal: "2024-01-13", sertifikat: "216/AT/LK-AS/I/24", merek: "Fuyue Weight", kelas: "F2", weights: [
+                    { nomMg: "-", nomG: "-", nomKg: "10", mcMg: "10000025,00", mcG: "10000,025", mcKg: "10,000025", uMg: "-", uG: "0,026", uKg: "0,000026", nominal: 10, unit: "kg", mc: "10000.025", u: "0.026" }
+                ]
+            }
+        ];
+
+        function loadQAData() {
+            let currentData = JSON.parse(localStorage.getItem('masterBatuTimbang') || '[]');
+            let updatedCount = 0;
+
+            QA_MASTER_DATA.forEach(qaItem => {
+                const existingIndex = currentData.findIndex(d => d.id === qaItem.id);
+                if (existingIndex !== -1) {
+                    // Update existing item with fresh exact data
+                    currentData[existingIndex] = qaItem;
+                } else {
+                    currentData.push(qaItem);
+                }
+                updatedCount++;
+            });
+
+            if (updatedCount > 0) {
+                localStorage.setItem('masterBatuTimbang', JSON.stringify(currentData));
+                masterData = currentData;
+            }
+        }
+
+        function deleteItem(index) {
+            if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+                masterData.splice(index, 1);
+                localStorage.setItem('masterBatuTimbang', JSON.stringify(masterData));
+                renderTable();
+            }
+        }
+
+        // Initialize table
+        if (masterData.length === 0) {
+            loadQAData();
+        }
+        renderTable();
+    </script>
+</body>
+
+</html>

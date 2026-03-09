@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penentuan Kelas Akurasi Timbangan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+        body {
+            font-family: 'Crimson Pro', 'Times New Roman', serif;
+            background-color: white;
+            color: black;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 2px 8px;
+        }
+
+        .bg-excel-header {
+            background-color: #D9D9D9;
+        }
+
+        .bg-excel-highlight {
+            background-color: #FFC000;
+        }
+    </style>
+</head>
+
+<body class="p-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Section 1 -->
+        <h2 class="font-bold border-b-2 border-black mb-2">1. Jenis Timbangan</h2>
+        <table id="table-type-balance" class="mb-4">
+            <thead>
+                <tr class="bg-excel-header italic">
+                    <th class="w-1/3 text-center">Type of Balances</th>
+                    <th class="w-1/3 text-center">Number of Digits After Decimal Position (g)</th>
+                    <th class="w-1/3 text-center">Accuracy Class</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="italic">
+                    <td>Ultra Micro Balances</td>
+                    <td class="text-center">7</td>
+                    <td class="text-center">Special (I)</td>
+                </tr>
+                <tr class="italic">
+                    <td>Micro Balances</td>
+                    <td class="text-center">6</td>
+                    <td class="text-center">Special (I)</td>
+                </tr>
+                <tr class="italic">
+                    <td>Semi-micro Balance</td>
+                    <td class="text-center">5</td>
+                    <td class="text-center">Special (I)</td>
+                </tr>
+                <tr class="italic">
+                    <td>Analytical Balance</td>
+                    <td class="text-center">4</td>
+                    <td class="text-center">Special (I)</td>
+                </tr>
+                <tr class="italic">
+                    <td>Precision Balance</td>
+                    <td class="text-center">1 to 3</td>
+                    <td class="text-center">High (II)</td>
+                </tr>
+                <tr class="italic">
+                    <td>Technical Balances</td>
+                    <td class="text-center">0 to 1</td>
+                    <td class="text-center">Medium (III)</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="mb-6">
+            <p><span class="font-bold">Readability (d) :</span> <span id="readability-display-1"
+                    class="float-right font-bold">0,00g</span></p>
+            <p>Jenis timbangan berdasarkan digit setelah desimal : <span class="font-bold">2 digit, <i>Precision
+                        Balance</i></span></p>
+        </div>
+
+        <!-- Section 2 -->
+        <h2 class="font-bold border-b-2 border-black mb-2 mt-8">2. Verification Scale Interval (e)</h2>
+        <table id="table-verification-scale" class="mb-4">
+            <tbody>
+                <tr>
+                    <td class="italic w-1/3 text-center font-bold">d =</td>
+                    <td id="readability-display-2" class="w-2/3 text-right">0,01</td>
+                </tr>
+                <tr>
+                    <td class="italic text-center">e =</td>
+                    <td id="verification-scale-display" class="text-right">0,1</td>
+                </tr>
+                <tr>
+                    <td class="italic text-center font-bold">e =</td>
+                    <td class="text-right"><span id="multiplier-display">100</span> x <span
+                            id="readability-display-3">0,01</span></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="mb-6">
+            <p>Nilai e untuk semi mikro/analitik e = 1 mg</p>
+            <p>Nilai e yang digunakan sesuai dengan yang tercantum pada timbangan serta perhitungan berdasarkan OIML
+                R76-1,</p>
+            <p><span class="font-bold">Nilai e :</span> <span id="e-value-display" class="float-right font-bold">0,1
+                    g</span>
+            </p>
+        </div>
+
+        <!-- Section 3 -->
+        <h2 class="font-bold border-b-2 border-black mb-2 mt-8">3. Penentuan Kelas Akurasi Timbangan</h2>
+        <table id="table-accuracy-class" class="mb-4">
+            <thead>
+                <tr class="bg-excel-header italic font-bold text-center">
+                    <th rowspan="2" class="w-1/4">Accuracy Class</th>
+                    <th rowspan="2" class="w-1/4">Verification Scale Interval, e</th>
+                    <th colspan="2" class="w-1/2">Number of Verification Scale intervals, n = Max./e</th>
+                </tr>
+                <tr class="bg-excel-header italic font-bold text-center">
+                    <th>Minimum</th>
+                    <th>Maximum</th>
+                </tr>
+            </thead>
+            <tbody class="text-center italic">
+                <tr>
+                    <td class="font-bold">Special (I)</td>
+                    <td>0,001 g &le; e</td>
+                    <td>50.000</td>
+                    <td>-</td>
+                </tr>
+                <!-- Class II Row 1 -->
+                <tr>
+                    <td rowspan="2" class="font-bold">High (II)</td>
+                    <td>0,001 &le; e &le; 0,05 g</td>
+                    <td>100</td>
+                    <td>100.000</td>
+                </tr>
+                <!-- Class II Row 2 -->
+                <tr>
+                    <td>0,1 g &le; e</td>
+                    <td>5.000</td>
+                    <td>100.000</td>
+                </tr>
+                <!-- Class III Row 1 -->
+                <tr>
+                    <td rowspan="2" class="font-bold">Medium (III)</td>
+                    <td>0,1 g &le; e &le; 2 g</td>
+                    <td>100</td>
+                    <td>10.000</td>
+                </tr>
+                <!-- Class III Row 2 -->
+                <tr>
+                    <td>5 g &le; e</td>
+                    <td>500</td>
+                    <td>10.000</td>
+                </tr>
+                <tr>
+                    <td class="font-bold">Ordinary (IIII)</td>
+                    <td>5 g &le; e</td>
+                    <td>100</td>
+                    <td>1.000</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="mb-6">
+            <div class="mb-6">
+                <p>Nilai e <span id="e-value-ref">0,1 g</span> terdapat pada kelas akurasi <span
+                        id="accuracy-class-ref">II dan III</span> sehingga harus dilakukan perhitungan number of
+                    verification scale interval (n) :</p>
+                <p>n = Max./e</p>
+                <div class="flex items-center gap-2 my-2">
+                    <span>n = </span>
+                    <input type="text" id="input-max-t3"
+                        class="w-24 border-b border-black text-center focus:outline-none" placeholder="Max">
+                    <span>g /</span>
+                    <input type="text" id="input-e-t3" class="w-16 border-b border-black text-center focus:outline-none"
+                        placeholder="e">
+                    <span>g = </span>
+                    <input type="text" id="n-result-display"
+                        class="w-24 border-b border-black text-center focus:outline-none bg-transparent" readonly
+                        placeholder="...">
+                </div>
+                <p>Jika dilihat dari hasil perhitungan di atas dan dibandingkan dengan tabel di atas maka <b
+                        id="n-value-bold">n =
+                        ...</b>,
+                    berada pada rentang n di <b id="accuracy-class-result-bold">kelas akurasi II</b></p>
+            </div>
+
+            <!-- Section 4 -->
+            <h2 class="font-bold border-b-2 border-black mb-2 mt-8">4. Penentuan Nilai Toleransi</h2>
+
+            <!-- Table 4a -->
+
+
+            <!-- a. Pengujian Pre-Adjustment -->
+            <p class="font-bold mb-2">a. Pengujian <i class="font-normal">Pre-Adjustment</i> : 0,10% x Nominal Batu
+                Timbang yang Digunakan</p>
+            <table class="mb-4">
+                <thead>
+                    <tr class="bg-excel-header italic font-bold text-center">
+                        <th class="w-1/4">Nominal Batu Timbang</t>
+                        <th class="w-1/4">Nilai Toleransi</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center italic">
+                    <tr>
+                        <td class="not-italic">
+                            <input type="text" id="input-nominal-pre-adj"
+                                class="w-24 border-b border-black text-center focus:outline-none bg-transparent"
+                                value="2000" placeholder="Nominal">
+                        </td>
+                        <td class="bg-excel-highlight not-italic" id="tol-pre-adj"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- b. Pengujian Repeatability -->
+            <div class="mb-6">
+                <p><span class="font-bold">b. Pengujian </span> <i class="font-normal">Repeatability</i> :
+                    <span class="float-right font-bold">0,10%</span>
+                </p>
+            </div>
+
+            <!-- c. Pengujian Linearity -->
+            <p class="font-bold mb-2">c. Pengujian <i class="font-normal">Linearity</i> : 0,10% x Nominal Batu Timbang
+                yang Digunakan</p>
+            <table class="mb-4">
+                <thead>
+                    <tr class="bg-excel-header italic font-bold text-center">
+                        <th class="w-1/4">Nominal Batu Timbang</th>
+                        <th class="w-1/4">Nilai Toleransi</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-linearity" class="text-center italic not-italic">
+                    <tr>
+                        <td><input type="text"
+                                class="w-16 border-b border-black text-center focus:outline-none bg-transparent lin-nominal"
+                                value="5"></td>
+                        <td class="bg-excel-highlight lin-tol"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text"
+                                class="w-16 border-b border-black text-center focus:outline-none bg-transparent lin-nominal"
+                                value="10"></td>
+                        <td class="bg-excel-highlight lin-tol"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text"
+                                class="w-16 border-b border-black text-center focus:outline-none bg-transparent lin-nominal"
+                                value="50"></td>
+                        <td class="bg-excel-highlight lin-tol"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text"
+                                class="w-16 border-b border-black text-center focus:outline-none bg-transparent lin-nominal"
+                                value="100"></td>
+                        <td class="bg-excel-highlight lin-tol"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text"
+                                class="w-16 border-b border-black text-center focus:outline-none bg-transparent lin-nominal"
+                                value="200"></td>
+                        <td class="bg-excel-highlight lin-tol"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text"
+                                class="w-16 border-b border-black text-center focus:outline-none bg-transparent lin-nominal"
+                                value="500"></td>
+                        <td class="bg-excel-highlight lin-tol"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text"
+                                class="w-16 border-b border-black text-center focus:outline-none bg-transparent lin-nominal"
+                                value="1000"></td>
+                        <td class="bg-excel-highlight lin-tol"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text"
+                                class="w-16 border-b border-black text-center focus:outline-none bg-transparent lin-nominal"
+                                value="1500"></td>
+                        <td class="bg-excel-highlight lin-tol"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text"
+                                class="w-16 border-b border-black text-center focus:outline-none bg-transparent lin-nominal"
+                                value="2000"></td>
+                        <td class="bg-excel-highlight lin-tol"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text"
+                                class="w-16 border-b border-black text-center focus:outline-none bg-transparent lin-nominal"
+                                value="3000"></td>
+                        <td class="bg-excel-highlight lin-tol"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="font-bold mb-2">d. Pengujian <i class="font-normal">Eccentricity</i> :<span
+                    id="ecc-tolerance-display" class="float-right font-bold">0,10%</span></p>
+
+            <!-- e. Pengujian Hysterisis -->
+            <p class="font-bold mb-2 mt-4">e. Pengujian <i class="font-normal">Hysterisis</i> : 0,10% x Nominal Batu
+                Timbang yang Digunakan</p>
+            <table class="mb-4">
+                <thead>
+                    <tr class="bg-excel-header italic font-bold text-center">
+                        <th class="w-1/4">Nominal Batu Timbang</th>
+                        <th class="w-1/4">Nilai Toleransi</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center italic" id="tbody-hysterisis">
+                    <tr>
+                        <td class="not-italic">
+                            <input type="text" id="input-nominal-hys"
+                                class="w-24 border-b border-black text-center focus:outline-none bg-transparent"
+                                value="1000" placeholder="Nominal" </td>
+                        <td class="bg-excel-highlight not-italic hys-tol"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-8 flex justify-center no-print">
+            <button onclick="saveCalibrationSettings()"
+                class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-8 rounded shadow-lg mr-4 transition-all active:scale-95 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                    <polyline points="17 21 17 13 7 13 7 21" />
+                    <polyline points="7 3 7 8 15 8" />
+                </svg>
+                Simpan & Kembali
+            </button>
+            <button onclick="window.location.href='index.html'"
+                class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded shadow-lg mr-4 transition-all active:scale-95">
+                Batal
+            </button>
+        </div>
+
+        <script>
+            // Helper to format small numbers without scientific notation
+            function formatSmallNumber(val, maxDec = 10) {
+                if (val === undefined || val === null || isNaN(val)) return "0";
+                // Convert to fixed decimal string to avoid '1e-8'
+                let str = val.toFixed(maxDec);
+                // Remove trailing zeros
+                str = str.replace(/\.?0+$/, "");
+                // Handle localized comma
+                return str.replace(".", ",");
+            }
+
+            function saveCalibrationSettings() {
+                const settings = {
+                    accuracyClass: document.getElementById('accuracy-class-ref')?.innerText.trim() || "",
+                    eValue: document.getElementById('input-e-t3')?.value || "0,1",
+                    preAdjNominal: document.getElementById('input-nominal-pre-adj')?.value || "",
+                    preAdjTolerance: document.getElementById('tol-pre-adj')?.innerText.trim() || "",
+                    hysNominal: document.getElementById('input-nominal-hys')?.value || "",
+                    eccTolerance: document.getElementById('ecc-tolerance-display')?.innerText.trim() || "0,10%",
+                    linearityTolerances: []
+                };
+
+                // Collect Linearity Tolerances
+                const linRows = document.querySelectorAll('#tbody-linearity tr');
+                linRows.forEach(row => {
+                    const input = row.querySelector('.lin-nominal');
+                    const nominal = input ? input.value : "";
+                    const mpe = row.querySelector('.lin-mpe')?.innerText || "";
+                    const tolerance = row.querySelector('.lin-tol')?.innerText || "";
+
+                    if (nominal) {
+                        settings.linearityTolerances.push({
+                            nominal: nominal,
+                            mpe: mpe,
+                            tolerance: tolerance
+                        });
+                    }
+                });
+
+                // Save to localStorage
+                localStorage.setItem('calibrationSettings', JSON.stringify(settings));
+
+                // Also save individual values for simplicity if needed elsewhere
+                localStorage.setItem('calibrationClass', settings.accuracyClass);
+                const eValNum = parseFloat(settings.eValue.replace(/\./g, "").replace(",", ".")) || 0;
+                localStorage.setItem('calibrationE', eValNum);
+
+                alert("Pengaturan berhasil disimpan!");
+                window.location.href = 'index.html';
+            }
+
+            function loadCalibrationSettings() {
+                const saved = localStorage.getItem('calibrationSettings');
+                if (!saved) return;
+
+                try {
+                    const settings = JSON.parse(saved);
+
+                    // Populate e value
+                    const inputE = document.getElementById('input-e-t3');
+                    if (inputE && settings.eValue) inputE.value = settings.eValue;
+
+                    // Populate Pre-Adj nominal
+                    const inputPre = document.getElementById('input-nominal-pre-adj');
+                    if (inputPre && settings.preAdjNominal) inputPre.value = settings.preAdjNominal;
+
+                    // Populate Hys nominal
+                    const inputHys = document.getElementById('input-nominal-hys');
+                    if (inputHys && settings.hysNominal) inputHys.value = settings.hysNominal;
+
+                    // Populate Linearity Nominals
+                    if (settings.linearityTolerances && settings.linearityTolerances.length > 0) {
+                        const linInputs = document.querySelectorAll('.lin-nominal');
+                        settings.linearityTolerances.forEach((item, idx) => {
+                            if (linInputs[idx]) {
+                                linInputs[idx].value = item.nominal;
+                            }
+                        });
+                    }
+
+                    // Restore Accuracy Class Highlight if saved
+                    if (settings.accuracyClass) {
+                        const table3 = document.getElementById('table-accuracy-class');
+                        if (table3) {
+                            const rows = table3.querySelectorAll('tbody tr');
+                            rows.forEach(r => {
+                                if (r.cells[0]?.innerText.trim() === settings.accuracyClass) {
+                                    rows.forEach(row => row.classList.remove('bg-excel-highlight', 'font-bold'));
+                                    r.classList.add('bg-excel-highlight', 'font-bold');
+                                }
+                            });
+                        }
+                        const accRef = document.getElementById('accuracy-class-ref');
+                        if (accRef) accRef.innerText = settings.accuracyClass;
+                    }
+
+                } catch (e) {
+                    console.error("Error loading calibration settings:", e);
+                }
+            }
+
+            function enableRowSelection(tableId) {
+                const table = document.getElementById(tableId);
+                if (!table) return;
+                const rows = table.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    row.style.cursor = 'pointer';
+                    row.addEventListener('click', function () {
+                        const isAlreadySelected = this.classList.contains('bg-excel-highlight');
+                        rows.forEach(r => r.classList.remove('bg-excel-highlight', 'font-bold'));
+                        if (!isAlreadySelected) {
+                            this.classList.add('bg-excel-highlight', 'font-bold');
+                        }
+                    });
+                });
+            }
+
+            // Dedicated selection logic for Table 3 to handle split rows and parent cells
+            function highlightTable3Row(rowIndex) {
+                const table3 = document.getElementById('table-accuracy-class');
+                if (!table3) return;
+                const rows = table3.querySelectorAll('tbody tr');
+
+                // Clear all highlights
+                rows.forEach(r => {
+                    r.classList.remove('bg-excel-highlight', 'font-bold');
+                    // Also clear specific cell highlights if any (for parent cells)
+                    const cells = r.querySelectorAll('td');
+                    cells.forEach(c => c.classList.remove('bg-excel-highlight', 'font-bold'));
+                });
+
+                if (rowIndex >= 0 && rows[rowIndex]) {
+                    // Highlight the target row
+                    rows[rowIndex].classList.add('bg-excel-highlight', 'font-bold');
+
+                    // Parent Cell Logic
+                    // Row 2 (Index 1) is High II Top -> Parent cell is in this row. Auto-highlighted.
+                    // Row 3 (Index 2) is High II Bottom -> Parent cell is in Row 2 (Index 1).
+                    if (rowIndex === 2) {
+                        const parentRow = rows[1];
+                        if (parentRow) {
+                            const parentCell = parentRow.cells[0]; // "High (II)"
+                            if (parentCell) parentCell.classList.add('bg-excel-highlight', 'font-bold');
+                        }
+                    }
+
+                    // Row 4 (Index 3) is Medium III Top -> Parent cell is in this row. Auto-highlighted.
+                    // Row 5 (Index 4) is Medium III Bottom -> Parent cell is in Row 4 (Index 3).
+                    if (rowIndex === 4) {
+                        const parentRow = rows[3];
+                        if (parentRow) {
+                            const parentCell = parentRow.cells[0]; // "Medium (III)"
+                            if (parentCell) parentCell.classList.add('bg-excel-highlight', 'font-bold');
+                        }
+                    }
+                }
+            }
+
+            function enableTable3Selection() {
+                const table = document.getElementById('table-accuracy-class');
+                if (!table) return;
+                const rows = table.querySelectorAll('tbody tr');
+
+                rows.forEach((row, index) => {
+                    row.style.cursor = 'pointer';
+                    row.addEventListener('click', function () {
+                        // Check if currently selected (simplified check: is the row highlighted?)
+                        // Note logic: if clicking active, deselect? Or just re-select?
+                        // User prompt "bisa milih" implies toggle or select. Standard is select.
+                        // I will assume selecting another overrides. Clicking same... maybe keeps it?
+                        // Let's implement simple select.
+
+                        highlightTable3Row(index);
+                    });
+                });
+            }
+
+            function enableColumnSelection(tableId) {
+                const table = document.getElementById(tableId);
+                if (!table) return;
+
+                const tbody = table.querySelector('tbody');
+                const rows = tbody.querySelectorAll('tr');
+
+                // Add click listeners to all cells in the tbody
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    cells.forEach((cell, index) => {
+                        // Skip the first column (MPE column)
+                        if (index === 0) return;
+
+                        cell.style.cursor = 'pointer';
+                        cell.addEventListener('click', function () {
+                            const isAlreadySelected = this.classList.contains('bg-excel-highlight');
+
+                            // Clear all highlights
+                            rows.forEach(r => {
+                                const rCells = r.querySelectorAll('td');
+                                rCells.forEach(c => c.classList.remove('bg-excel-highlight', 'font-bold'));
+                            });
+
+                            if (!isAlreadySelected) {
+                                rows.forEach(r => {
+                                    const rCells = r.querySelectorAll('td');
+                                    if (rCells[index]) {
+                                        rCells[index].classList.add('bg-excel-highlight', 'font-bold');
+                                    }
+                                });
+                            }
+                        });
+                    });
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                enableRowSelection('table-type-balance');
+                enableRowSelection('table-verification-scale');
+                enableTable3Selection(); // Changed from generic to specific
+
+
+                // Update Dynamic Readability
+                const savedD = localStorage.getItem('calibrationReadability');
+                if (savedD) {
+                    const dVal = parseFloat(savedD);
+                    const dStr = dVal.toString().replace('.', ',');
+
+                    // Update simple displays
+                    const disp1 = document.getElementById('readability-display-1');
+                    if (disp1) disp1.innerText = formatSmallNumber(dVal) + " g";
+
+                    const disp2 = document.getElementById('readability-display-2');
+                    if (disp2) disp2.innerText = formatSmallNumber(dVal);
+
+                    const disp3 = document.getElementById('readability-display-3');
+                    if (disp3) disp3.innerText = formatSmallNumber(dVal);
+
+                    // Update 5 x d
+                    const tol5d = document.getElementById('tolerance-5d-display');
+                    if (tol5d) {
+                        const val5d = dVal * 5;
+                        tol5d.innerText = formatSmallNumber(val5d) + " g";
+                    }
+
+                    // Automate Table 1 Highlighting based on decimals
+                    let decimals = 0;
+                    if (Math.floor(dVal) !== dVal) {
+                        const str = dVal.toFixed(10);
+                        const match = str.match(/\.0*([1-9]+)/);
+                        if (match) {
+                            decimals = match[0].length - 1;
+                        } else {
+                            // Fallback for very small or whole numbers
+                            const expStr = dVal.toString();
+                            if (expStr.includes('e')) {
+                                decimals = parseInt(expStr.split('-')[1], 10);
+                            } else if (expStr.includes('.')) {
+                                decimals = expStr.split('.')[1].length;
+                            }
+                        }
+                    }
+
+                    // Determine Row Index for Table 1 (table-type-balance)
+                    // Row 0: Ultra Micro (7)
+                    // Row 1: Micro (6)
+                    // Row 2: Semi-micro (5)
+                    // Row 3: Analytical (4)
+                    // Row 4: Precision (1 to 3)
+                    // Row 5: Technical (0 to 1)
+
+                    let rowIndex = -1;
+                    let typeName = "";
+
+                    if (decimals >= 7) { rowIndex = 0; typeName = "Ultra Micro Balances"; }
+                    else if (decimals === 6) { rowIndex = 1; typeName = "Micro Balances"; }
+                    else if (decimals === 5) { rowIndex = 2; typeName = "Semi-micro Balance"; }
+                    else if (decimals === 4) { rowIndex = 3; typeName = "Analytical Balance"; }
+                    else if (decimals >= 2 && decimals <= 3) { rowIndex = 4; typeName = "Precision Balance"; }
+                    else { rowIndex = 5; typeName = "Technical Balances"; } // 0 or 1
+
+                    const table1 = document.getElementById('table-type-balance');
+                    if (table1 && rowIndex !== -1) {
+                        const rows = table1.querySelectorAll('tbody tr');
+                        // Reset all
+                        rows.forEach(r => r.classList.remove('bg-excel-highlight', 'font-bold'));
+
+                        // Highlight target
+                        if (rows[rowIndex]) {
+                            rows[rowIndex].classList.add('bg-excel-highlight', 'font-bold');
+                        }
+                    }
+
+                    // Update text description below Table 1
+                    // <p>Jenis timbangan berdasarkan digit setelah desimal : <span class="font-bold">2 digit, <i>Precision Balance</i></span></p>
+                    // Need to find this p tag. It doesn't have an ID. I should add one or select carefully.
+                    // Selecting by path or adding ID is safer. Let's add ID "type-desc-display" to the span.
+                    const typeDescSpan = document.getElementById('type-desc-display');
+                    if (typeDescSpan) {
+                        typeDescSpan.innerHTML = `${decimals} digit, <i>${typeName}</i>`;
+                    } else {
+                        // Fallback to searching if I forgot to add ID in this step (which I did, so I will add it via next tool or use querySelector)
+                        // The text is inside .mb-6 after table 1.
+                        // <div class="mb-6"> ... <p>... : <span>...</span></p> </div>
+                        // It's the second paragraph in that div.
+                        const container = table1.nextElementSibling;
+                        if (container) {
+                            const spans = container.querySelectorAll('span');
+                            // spans[0] is 'Readability (d) :', spans[1] is the value.
+                            // Next p has 'Jenis timbangan...'.
+                            const pTags = container.querySelectorAll('p');
+                            if (pTags[1]) {
+                                const span = pTags[1].querySelector('span');
+                                if (span) span.innerHTML = `${decimals} digit, <i>${typeName}</i>`;
+                            }
+                        }
+                    }
+
+                    // Automate Table 2 (Verification Scale)
+                    // Calculate e = max(10 * d, 0.001) for Analytical/Semi-micro
+                    // Or follow common pattern for other types (usually 10d)
+                    let eVal = dVal * 10;
+                    if (decimals >= 4 && eVal < 0.001) {
+                        eVal = 0.001;
+                    }
+                    const eValStr = formatSmallNumber(eVal);
+                    const multiplier = eVal / dVal;
+
+                    // Update displays
+                    const eDisp1 = document.getElementById('verification-scale-display');
+                    if (eDisp1) eDisp1.innerText = eValStr;
+
+                    const eDisp2 = document.getElementById('e-value-display');
+                    if (eDisp2) eDisp2.innerText = eValStr + " g";
+
+                    const multDisp = document.getElementById('multiplier-display');
+                    if (multDisp) multDisp.innerText = multiplier;
+
+                    // Auto-highlight Table 2
+                    // Highlight the calculation row (index 2 in HTML, index 1 in JavaScript t2Rows)
+                    const table2 = document.getElementById('table-verification-scale');
+                    if (table2) {
+                        const t2Rows = table2.querySelectorAll('tbody tr');
+                        t2Rows.forEach(r => r.classList.remove('bg-excel-highlight', 'font-bold'));
+
+                        // Always highlight the middle row (index 1) which is "e ="
+                        if (t2Rows[1]) {
+                            t2Rows[1].classList.add('bg-excel-highlight', 'font-bold');
+                        }
+                    }
+
+                    // Automate Table 3 (Accuracy Class) with Interactive Inputs
+                    const savedMax = localStorage.getItem('calibrationCapacity');
+                    // No default fallback: use saved value or nothing
+                    let initMax = savedMax ? parseFloat(savedMax) : 0;
+
+                    // Initialize Inputs with Default Values
+                    const inputMax = document.getElementById('input-max-t3');
+                    const inputE = document.getElementById('input-e-t3');
+
+                    if (inputMax) {
+                        // Only set value if initMax is valid > 0, else leave empty for user to type
+                        inputMax.value = (initMax > 0) ? initMax.toLocaleString('id-ID') : "";
+                    }
+                    if (inputE) {
+                        // Use saved e if available, else use auto-calculated default
+                        const savedSettings = JSON.parse(localStorage.getItem('calibrationSettings') || '{}');
+                        if (savedSettings.eValue) {
+                            inputE.value = savedSettings.eValue;
+                        } else {
+                            inputE.value = formatSmallNumber(eVal);
+                        }
+                    }
+
+
+                    // Function to Recalculate Table 3
+                    function calculateTable3() {
+                        const rawMax = inputMax ? inputMax.value : "0";
+                        const rawE = inputE ? inputE.value : "0";
+
+                        // Helper to safely parse localized number
+                        const parseLoc = (str) => {
+                            if (!str) return 0;
+                            return parseFloat(str.replace(/\./g, "").replace(",", ".")) || 0;
+                        };
+
+                        const valMax = parseLoc(rawMax);
+                        const valE = parseLoc(rawE);
+
+                        // Prevent division by zero
+                        if (valE <= 0) return;
+
+                        const n = valMax / valE;
+
+
+                        // Class Determination Logic
+                        // Row indices:
+                        // 0: Special (I)
+                        // 1: High (II) - Range 1 (0.001 <= e <= 0.05)
+                        // 2: High (II) - Range 2 (0.1 <= e)
+                        // 3: Medium (III) - Range 1 (0.1 <= e <= 2)
+                        // 4: Medium (III) - Range 2 (5 <= e)
+                        // 5: Ordinary (IIII)
+
+                        let bestClass = "";
+                        let table3RowIndex = -1;
+
+                        // Check Class I
+                        // 0.001 g <= e; Min n 50,000; Max n -
+                        if (valE >= 0.001 && n >= 50000) {
+                            bestClass = "I";
+                            table3RowIndex = 0;
+                        }
+
+                        // Check Class II
+                        if (bestClass === "") {
+                            // High (II) Range 1: 0.001 <= e <= 0.05; Min 100; Max 100,000
+                            if (valE >= 0.001 && valE <= 0.05 && n >= 100 && n <= 100000) {
+                                bestClass = "II";
+                                table3RowIndex = 1;
+                            }
+                            // High (II) Range 2: 0.1 <= e; Min 5,000; Max 100,000
+                            else if (valE >= 0.1 && n >= 5000 && n <= 100000) {
+                                bestClass = "II";
+                                table3RowIndex = 2;
+                            }
+                        }
+
+                        // Check Class III
+                        if (bestClass === "") {
+                            // Medium (III) Range 1: 0.1 <= e <= 2; Min 100; Max 10,000
+                            if (valE >= 0.1 && valE <= 2 && n >= 100 && n <= 10000) {
+                                bestClass = "III";
+                                table3RowIndex = 3;
+                            }
+                            // Medium (III) Range 2: 5 <= e; Min 500; Max 10,000
+                            else if (valE >= 5 && n >= 500 && n <= 10000) {
+                                bestClass = "III";
+                                table3RowIndex = 4;
+                            }
+                        }
+
+                        // Check Class IIII
+                        if (bestClass === "") {
+                            // Ordinary (IIII) 5 <= e; Min 100; Max 1,000
+                            if (valE >= 5 && n >= 100 && n <= 1000) {
+                                bestClass = "IIII";
+                                table3RowIndex = 5;
+                            }
+                        }
+
+                        // Update Table 3 Highlight
+                        const table3 = document.getElementById('table-accuracy-class');
+                        if (table3 && table3RowIndex !== -1) {
+                            const t3Rows = table3.querySelectorAll('tbody tr');
+                            t3Rows.forEach(r => r.classList.remove('bg-excel-highlight', 'font-bold'));
+
+                            // Highlight the specific row
+                            if (t3Rows[table3RowIndex]) {
+                                t3Rows[table3RowIndex].classList.add('bg-excel-highlight', 'font-bold');
+                            }
+                        }
+
+                        // Update Text Displays
+                        const eRef = document.getElementById('e-value-ref');
+                        if (eRef) eRef.innerText = formatSmallNumber(valE) + " g";
+
+                        const accRef = document.getElementById('accuracy-class-ref');
+                        if (accRef) accRef.innerText = bestClass;
+
+                        // Update n calculation display
+                        const nCalcDisp = document.getElementById('n-calculation-display');
+                        if (nCalcDisp) {
+                            const maxStr = valMax.toLocaleString('id-ID');
+                            const eValStrFormatted = formatSmallNumber(valE);
+                            nCalcDisp.innerText = `n = ${maxStr} g / ${eValStrFormatted} g`;
+                        }
+
+                        // Update result displays
+                        const nStr = n.toLocaleString('id-ID', { maximumFractionDigits: 0 });
+
+                        const nResDisp = document.getElementById('n-result-display');
+                        if (nResDisp) nResDisp.value = nStr;
+
+                        const nBold = document.getElementById('n-value-bold');
+                        if (nBold) nBold.innerText = `n = ${nStr}`;
+
+                        const accBold = document.getElementById('accuracy-class-result-bold');
+                        if (accBold) accBold.innerText = `kelas akurasi ${bestClass}`;
+                    }
+                    // Attach Listeners
+                    if (inputMax) inputMax.addEventListener('input', calculateTable3);
+                    if (inputE) inputE.addEventListener('input', calculateTable3);
+
+                    // --- NEW: Generic MPE Determination and Calculation Logic ---
+
+                    function getMPEFactor(m, accClass) {
+                        // Based on Table 4 (MPE Initial Verification)
+                        if (accClass === "I") {
+                            if (m >= 0 && m <= 50000) return 0.5;
+                            if (m > 50000 && m <= 200000) return 1.0;
+                            if (m > 200000) return 1.5;
+                        } else if (accClass === "II") {
+                            if (m >= 0 && m <= 5000) return 0.5;
+                            if (m > 5000 && m <= 20000) return 1.0;
+                            if (m > 20000 && m <= 100000) return 1.5;
+                        } else if (accClass === "III") {
+                            if (m >= 0 && m <= 500) return 0.5;
+                            if (m > 500 && m <= 2000) return 1.0;
+                            if (m > 2000 && m <= 10000) return 1.5;
+                        } else if (accClass === "IIII" || accClass === "IV") {
+                            if (m >= 0 && m <= 50) return 0.5;
+                            if (m > 50 && m <= 200) return 1.0;
+                            if (m > 200 && m <= 1000) return 1.5;
+                        }
+                        return 0;
+                    }
+
+                    function formatMPE(factor) {
+                        return `&plusmn; ${factor.toFixed(1).replace('.', ',')} e`;
+                    }
+
+                    function calculatePreAdjustmentTolerance() {
+                        const inputNominal = document.getElementById('input-nominal-pre-adj');
+                        const rawNominal = inputNominal ? inputNominal.value : "0";
+                        const nominal = parseFloat(rawNominal.replace(/\./g, "").replace(",", ".")) || 0;
+
+                        const inputE = document.getElementById('input-e-t3');
+                        const rawE = inputE ? inputE.value : "0,1";
+                        const valE = parseFloat(rawE.replace(/\./g, "").replace(",", ".")) || 0.1;
+
+                        if (valE <= 0) return;
+
+                        const tolerance = (0.10 / 100) * nominal;
+                        const tolCell = document.getElementById('tol-pre-adj');
+
+                        let decimals = 4;
+                        const eStrVal = valE.toFixed(10);
+                        const eMatchVal = eStrVal.match(/\.0*([1-9]+)/);
+                        if (eMatchVal) {
+                            decimals = eMatchVal[0].length - 1;
+                        }
+                        if (decimals < 4) decimals = 4;
+
+                        if (tolCell) tolCell.innerText = tolerance.toLocaleString('id-ID', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+                    }
+
+                    // For Linearity Table (c)
+                    function calculateLinearityTolerances() {
+                        const tbody = document.getElementById('tbody-linearity');
+                        if (!tbody) return;
+
+                        const inputE = document.getElementById('input-e-t3');
+                        const rawE = inputE ? inputE.value : "0,1";
+                        const valE = parseFloat(rawE.replace(/\./g, "").replace(",", ".")) || 0.1;
+
+                        const rows = tbody.querySelectorAll('tr');
+
+                        let decimals = 4; // Default to 4 decimals for 0.10% rule
+                        const eStrVal = valE.toFixed(10);
+                        const eMatchVal = eStrVal.match(/\.0*([1-9]+)/);
+                        if (eMatchVal) {
+                            decimals = eMatchVal[0].length - 1;
+                        }
+                        if (decimals < 4) decimals = 4;
+
+                        rows.forEach(row => {
+                            const inputNominal = row.querySelector('.lin-nominal');
+                            const rawNominal = inputNominal ? inputNominal.value : "0";
+                            const nominal = parseFloat(rawNominal.replace(/\./g, "").replace(",", ".")) || 0;
+
+                            const tolerance = (0.10 / 100) * nominal;
+
+                            const tolCell = row.querySelector('.lin-tol');
+                            if (tolCell) tolCell.innerText = tolerance.toLocaleString('id-ID', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+                        });
+                    }
+
+                    // For Hysterisis Table (e)
+                    function calculateHysterisisTolerances() {
+                        const inputNominal = document.getElementById('input-nominal-hys');
+                        const rawNominal = inputNominal ? inputNominal.value : "0";
+                        const nominal = parseFloat(rawNominal.replace(/\./g, "").replace(",", ".")) || 0;
+
+                        const inputE = document.getElementById('input-e-t3');
+                        const rawE = inputE ? inputE.value : "0,1";
+                        const valE = parseFloat(rawE.replace(/\./g, "").replace(",", ".")) || 0.1;
+
+                        const tolerance = (0.10 / 100) * nominal;
+
+                        const tolCell = document.querySelector('.hys-tol');
+                        let decimals = 4;
+                        const eStrVal = valE.toFixed(10);
+                        const eMatchVal = eStrVal.match(/\.0*([1-9]+)/);
+                        if (eMatchVal) {
+                            decimals = eMatchVal[0].length - 1;
+                        }
+                        if (decimals < 4) decimals = 4;
+
+                        if (tolCell) tolCell.innerText = tolerance.toLocaleString('id-ID', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+                    }
+
+                    const inputNominalPreAdj = document.getElementById('input-nominal-pre-adj');
+                    if (inputNominalPreAdj) {
+                        inputNominalPreAdj.addEventListener('input', calculatePreAdjustmentTolerance);
+                    }
+
+                    // Listeners for Linearity
+                    document.querySelectorAll('.lin-nominal').forEach(input => {
+                        input.addEventListener('input', calculateLinearityTolerances);
+                    });
+
+                    // Listener for Hysterisis
+                    const inputNominalHys = document.getElementById('input-nominal-hys');
+                    if (inputNominalHys) {
+                        inputNominalHys.addEventListener('input', calculateHysterisisTolerances);
+                    }
+
+                    const updateAllTables = () => {
+                        calculateTable3();
+                        calculatePreAdjustmentTolerance();
+                        calculateLinearityTolerances();
+                        calculateHysterisisTolerances();
+                    };
+
+                    if (inputMax) inputMax.addEventListener('input', updateAllTables);
+                    if (inputE) inputE.addEventListener('input', updateAllTables);
+
+                    // Final load and sync
+                    loadCalibrationSettings();
+                    updateAllTables();
+                } // End of if (savedD) check
+            }); // End of DOMContentLoaded scope
+        </script>
+
+        <style>
+            @media print {
+                .no-print {
+                    display: none;
+                }
+
+                body {
+                    padding: 0;
+                }
+            }
+
+            .not-italic {
+                font-style: normal;
+            }
+        </style>
+</body>
+
+</html>
