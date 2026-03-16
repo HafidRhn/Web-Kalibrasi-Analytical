@@ -4068,7 +4068,16 @@
         targetClass = globalDefaultClass || "F1";
       }
 
-      const mpeValue = getMPEWithBreakdown(nominalVal, targetClass);
+      // Priority: Use certMpe from dataset if available (Search/Manual Submit)
+      let mpeValue = 0;
+      if (linRows[idx] && linRows[idx].dataset.certMpe) {
+        mpeValue = parseFloat(linRows[idx].dataset.certMpe);
+      } else if (resultU.mpe !== undefined && resultU.mpe !== null) {
+        mpeValue = resultU.mpe;
+      } else {
+        mpeValue = getMPEWithBreakdown(nominalVal, targetClass);
+      }
+
       const u4 = 0.08 * (mpeValue / 1000); // 8% of MPE (converted to grams)
       cells[7].innerText = formatNumber(u4, 9);
 
@@ -4255,32 +4264,45 @@
           mcVal = parseFloat(first.mc.toString().replace(/\./g, "").replace(",", "."));
         }
 
-        return { u: uVal, mc: mcVal, kelas: resolvedClass || "" };
+        const mpeVal = getMPEWithBreakdown(rawTargetNum, resolvedClass || "F1");
+
+        return { u: uVal, mc: mcVal, kelas: resolvedClass || "", mpe: mpeVal };
       }
 
       // 2. Composite Logic
       if (Math.abs(rawTargetNum - 1500) < 0.001) {
         const r1000 = findMasterUncertainty("1000", depth + 1);
         const r500 = findMasterUncertainty("500", depth + 1);
-        if (r1000.u !== null && r500.u !== null) {
-          return { u: r1000.u + r500.u, mc: (r1000.mc || 1000) + (r500.mc || 500), kelas: r1000.kelas };
+        if (r1000.mpe !== undefined || r500.mpe !== undefined) {
+          return {
+            u: (r1000.u || 0) + (r500.u || 0),
+            mc: (r1000.mc || 1000) + (r500.mc || 500),
+            kelas: r1000.kelas || r500.kelas,
+            mpe: (r1000.mpe || 0) + (r500.mpe || 0)
+          };
         }
       } else if (Math.abs(rawTargetNum - 2000) < 0.001) {
         const r1000 = findMasterUncertainty("1000", depth + 1);
         const r1000Star = findMasterUncertainty("1000*", depth + 1);
-        if (r1000.u !== null && r1000Star.u !== null) {
-          return { u: r1000.u + r1000Star.u, mc: (r1000.mc || 1000) + (r1000Star.mc || 1000), kelas: r1000.kelas };
+        if (r1000.mpe !== undefined || r1000Star.mpe !== undefined) {
+          return {
+            u: (r1000.u || 0) + (r1000Star.u || 0),
+            mc: (r1000.mc || 1000) + (r1000Star.mc || 1000),
+            kelas: r1000.kelas || r1000Star.kelas,
+            mpe: (r1000.mpe || 0) + (r1000Star.mpe || 0)
+          };
         }
       } else if (Math.abs(rawTargetNum - 3000) < 0.001) {
         // PER USER REQUEST: Must be exactly 2kg + 1kg. No 1kg+1kg*+1kg fallback.
         const combos = [["2000", "1000"], ["2kg", "1kg"]];
         for (const names of combos) {
           const res = names.map(n => findMasterUncertainty(n, depth + 1));
-          if (res.every(r => r.u !== null)) {
+          if (res.some(r => r.mpe !== undefined)) {
             return {
-              u: res.reduce((s, r) => s + r.u, 0),
+              u: res.reduce((s, r) => s + (r.u || 0), 0),
               mc: res.reduce((s, r, i) => s + (r.mc || parseNumber(names[i])), 0),
-              kelas: res[0].kelas
+              kelas: res[0].kelas || res[1].kelas,
+              mpe: res.reduce((sum, r) => sum + (r.mpe || 0), 0)
             };
           }
         }
@@ -5293,7 +5315,7 @@
 <!-- MODAL MANUAL INPUT FOR LINEARITY -->
 <div id="modal-manual-input"
   class="fixed inset-0 bg-black/50 hidden z-[9999] flex items-center justify-center p-4 no-print">
-  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden text-black">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden text-black">
     <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-green-600 text-white">
       <h3 class="font-bold text-lg">Hitung Nominal Batu Timbang</h3>
       <button onclick="closeManualInputModal()" class="text-white opacity-70 hover:opacity-100">
@@ -5304,7 +5326,7 @@
         </svg>
       </button>
     </div>
-    <div class="p-6 text-black">
+    <div class="p-6 text-black flex-1 overflow-y-auto custom-scrollbar">
       <p class="text-sm text-gray-600 mb-4">Pilih dua Batu Timbang dari Master Data untuk menghitung Nominal gabungan
       </p>
 
@@ -5354,6 +5376,19 @@
             <div id="manual-result-mc" class="text-2xl font-bold text-blue-600">-</div>
             <div id="manual-formula-mc" class="text-xs text-gray-500 mt-1"></div>
           </div>
+
+          <!-- MPE Display -->
+          <div class="bg-amber-50 p-4 rounded-lg border-2 border-amber-200">
+            <div class="flex justify-between items-center mb-1">
+              <label class="block text-sm font-semibold text-gray-700">MPE Gabungan</label>
+              <div class="flex gap-1">
+                <span id="manual-class-badge-1" class="hidden px-2 py-0.5 bg-amber-200 text-amber-800 rounded text-[10px] font-bold"></span>
+                <span id="manual-class-badge-2" class="hidden px-2 py-0.5 bg-amber-200 text-amber-800 rounded text-[10px] font-bold"></span>
+              </div>
+            </div>
+            <div id="manual-result-mpe" class="text-2xl font-bold text-amber-600">-</div>
+            <div id="manual-formula-mpe" class="text-[10px] text-gray-500 mt-1 leading-tight"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -5375,8 +5410,9 @@
 <div id="modal-reset-confirmation"
   class="fixed inset-0 bg-slate-900/60 hidden z-[10000] flex items-center justify-center p-4 no-print backdrop-blur-[2px]">
   <div
-    class="bg-white rounded-[32px] shadow-2xl w-full max-w-[600px] overflow-hidden transform transition-all p-8 relative"
+    class="bg-white rounded-[32px] shadow-2xl w-full max-w-[600px] max-h-[90vh] overflow-hidden transform transition-all p-8 relative flex flex-col"
     onclick="event.stopPropagation()">
+    <div class="flex-1 overflow-y-auto custom-scrollbar">
     <div class="flex items-start gap-6">
       <!-- Custom Circular Icon (Light Pink) -->
       <div class="flex-shrink-0">
@@ -5398,6 +5434,7 @@
       </div>
     </div>
 
+    </div>
     <!-- Actions -->
     <div class="mt-8 flex justify-center sm:justify-end gap-3">
       <button onclick="closeResetConfirmation()"
@@ -5805,7 +5842,11 @@
         uG = parseFloat(w.u.toString().replace(/\./g, "").replace(",", "."));
       }
 
-      return { nomG, mcG, uG };
+      let mpeVal = 0;
+      if (w.mpe) mpeVal = parseNumber(w.mpe);
+      else mpeVal = getMPEWithBreakdown(nomG, w.kelas || set.kelas || "F1");
+
+      return { nomG, mcG, uG, mpe: mpeVal, kelas: w.kelas || set.kelas };
     };
 
     const vals = getMasterValues(w);
@@ -5868,6 +5909,7 @@
 
       // New: Store uncertainty for U1 calculation
       tr.dataset.certU = vals.uG;
+      tr.dataset.certMpe = vals.mpe;
 
       refreshStaticWeights();
 
@@ -5932,9 +5974,31 @@
     document.getElementById('manual-formula-nominal').textContent = '';
     document.getElementById('manual-result-mc').textContent = '-';
     document.getElementById('manual-formula-mc').textContent = '';
+    document.getElementById('manual-result-mpe').textContent = '-';
+    document.getElementById('manual-formula-mpe').textContent = '';
+    document.getElementById('manual-class-badge-1').classList.add('hidden');
+    document.getElementById('manual-class-badge-2').classList.add('hidden');
     document.getElementById('manual-submit-btn').disabled = true;
 
     document.getElementById('modal-manual-input').classList.remove('hidden');
+  }
+
+  // --- MPE Unit Formatter (OIML R-111 Standard) ---
+  function formatMPEValue(mpeMg) {
+    // Determine unit and scale
+    let val = 0;
+    let unit = "";
+    if (mpeMg >= 1000000) { unit = "kg"; val = mpeMg / 1000000; }
+    else if (mpeMg >= 1000) { unit = "g"; val = mpeMg / 1000; }
+    else { unit = "mg"; val = mpeMg; }
+
+    // Format with Indonesian dot separator
+    const formatted = val.toLocaleString('id-ID', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 10
+    }).replace(/,0+$/, "");
+
+    return `${formatted} ${unit}`;
   }
 
   // Wrapper function for event-based calls
@@ -6111,6 +6175,34 @@
 
     // Enable submit button
     document.getElementById('manual-submit-btn').disabled = false;
+
+    // --- MPE CALCULATION (Sync with Classes) ---
+    const m1 = getMPEWithBreakdown(manualInputWeights.weight1.nominal, manualInputWeights.weight1.kelas);
+    const m2 = getMPEWithBreakdown(manualInputWeights.weight2.nominal, manualInputWeights.weight2.kelas);
+    const totalMpe = m1 + m2;
+
+    // Update Class Badges
+    const b1 = document.getElementById('manual-class-badge-1');
+    const b2 = document.getElementById('manual-class-badge-2');
+    if (manualInputWeights.weight1.kelas) {
+      b1.textContent = manualInputWeights.weight1.kelas;
+      b1.classList.remove('hidden');
+    }
+    if (manualInputWeights.weight2.kelas) {
+      b2.textContent = manualInputWeights.weight2.kelas;
+      b2.classList.remove('hidden');
+    }
+
+    // Display MPE Result with Adaptive Units
+    document.getElementById('manual-result-mpe').textContent = formatMPEValue(totalMpe);
+
+    // Formula Example: 30 mg (F2) + 5 mg (F1) = 35 mg
+    const f1Str = `${formatMPEValue(m1)} (${manualInputWeights.weight1.kelas || 'N/A'})`;
+    const f2Str = `${formatMPEValue(m2)} (${manualInputWeights.weight2.kelas || 'N/A'})`;
+    document.getElementById('manual-formula-mpe').textContent = `${f1Str} + ${f2Str} = ${formatMPEValue(totalMpe)}`;
+
+    // Store the calculated MPE for submission
+    manualInputWeights.calculatedMpe = totalMpe;
   }
 
   function submitManualInput() {
@@ -6158,11 +6250,11 @@
     mcCell.classList.add('mc-cell');
     mcCell.innerText = mcFormatted;
 
-    // New: Store uncertainty for U1 calculation
+    // New: Store uncertainty and MPE for U1 and U4 calculation
     tr.dataset.certU = uResultG;
+    tr.dataset.certMpe = manualInputWeights.calculatedMpe; // Use the stored MPE in mg
 
     // Capture class for U4 calculation
-    // If weights have different classes, we'll take the first one (most likely same)
     if (manualInputWeights.weight1.kelas) {
       tr.dataset.certKelas = manualInputWeights.weight1.kelas;
     }
